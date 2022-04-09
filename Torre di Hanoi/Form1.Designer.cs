@@ -28,13 +28,24 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.lblDebug = new System.Windows.Forms.Label();
             this.SuspendLayout();
+            // 
+            // lblDebug
+            // 
+            this.lblDebug.AutoSize = true;
+            this.lblDebug.Location = new System.Drawing.Point(12, 9);
+            this.lblDebug.Name = "lblDebug";
+            this.lblDebug.Size = new System.Drawing.Size(38, 15);
+            this.lblDebug.TabIndex = 1;
+            this.lblDebug.Text = "label1";
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1284, 561);
+            this.Controls.Add(this.lblDebug);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
@@ -43,15 +54,10 @@
             this.Text = "Torre di Hanoi";
             this.TopMost = true;
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
         #endregion
-
-        protected override void OnPaint(PaintEventArgs e)
-        {
-            base.OnPaint(e);
-            
-            Program.OnPaint(e);
-        }
+        private Label lblDebug;
     }
 }
