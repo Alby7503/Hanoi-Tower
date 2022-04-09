@@ -2,43 +2,50 @@ namespace Torre_di_Hanoi
 {
     public partial class Form1 : Form
     {
-        Random rnd = new();
-        static readonly Dictionary<Rectangle, Color> pieces = new();
+        private const int baseX = 100;
+        private const int baseY = 400;
+        private const int baseWidth = 300;
+        private const int baseHeight = 20;
+        
+        private readonly Random rnd = new();
+        private static readonly Dictionary<Rectangle, Color> pieces = new();
+        
         public Form1()
         {
             InitializeComponent();
 
-            int x = 300;
-            int y = 10;
-            int width = 20;
-            int height = 20;
-            short discsNumber = 10;
-            for (short i = 0; i < discsNumber; i++)
+            //disksNumber disks
+            short disksNumber = 10;
+            int diskWidth = 20;
+            int diskHeight = 20;
+            int diskX = baseX + baseWidth / 2;
+            int diskY = baseY + disksNumber * diskHeight;
+            for (short i = 0; i < disksNumber; i++)
             {
-                Controls.Add(DrawDisk(x, y, width, height));
-                x -= (int)(((width * 1.3f) - width) / 2);
-                width = (int)(width * 1.3f);
-                y += height;
+                Controls.Add(DrawDisk(diskX, diskY, diskWidth, diskHeight));
+                int newWidth = (int)(diskWidth * 1.3f);
+                diskX -= (int)((newWidth - diskWidth) / 2);
+                diskWidth = newWidth;
+                diskY -= diskHeight;
             }
         }
 
         private Panel DrawDisk(int x, int y, int width, int height)
         {
             Panel panel = new();
-            Color color = Color.FromArgb(rnd.Next(256), rnd.Next(256), rnd.Next(256));
-            panel.BackColor = color;
+            panel.BackColor = Color.FromArgb(rnd.Next(256), rnd.Next(256), rnd.Next(256));
             panel.Location = new Point(x, y);
-            panel.Size = new Size(width, height);
-            panel.MouseDown += new MouseEventHandler(panel_MouseDown);
-            panel.MouseMove += new MouseEventHandler(panel_MouseMove);
-            panel.MouseUp += new MouseEventHandler(panel_MouseUp);
+            panel.Size = new(width, height);
+            panel.MouseDown += new(Panel_MouseDown);
+            panel.MouseMove += new(Panel_MouseMove);
+            panel.MouseUp += new(Panel_MouseUp);
             return panel;
         }
 
         private Point MouseDownLocation;
         private Point Start;
 
-        private void panel_MouseDown(object? sender, MouseEventArgs e)
+        private void Panel_MouseDown(object? sender, MouseEventArgs e)
         {
             if (sender != null && e.Button == MouseButtons.Left)
             {
@@ -47,7 +54,7 @@ namespace Torre_di_Hanoi
             }
         }
 
-        private void panel_MouseMove(object? sender, MouseEventArgs e)
+        private void Panel_MouseMove(object? sender, MouseEventArgs e)
         {
             if (sender != null && e.Button == MouseButtons.Left)
             {
@@ -59,12 +66,11 @@ namespace Torre_di_Hanoi
             }
         }
 
-        private void panel_MouseUp(object? sender, MouseEventArgs e)
+        private void Panel_MouseUp(object? sender, MouseEventArgs e)
         {
             if (sender != null && e.Button == MouseButtons.Left)
             {
-                Panel panel = (Panel)sender;
-                panel.Location = Start;
+                ((Panel)sender).Location = Start;
             }
         }
 
@@ -72,10 +78,6 @@ namespace Torre_di_Hanoi
         {
             pieces.Clear();
             //3 bases
-            int baseX = 100;
-            int baseY = 400;
-            int baseWidth = 300;
-            int baseHeight = 20;
             Rectangle @base = new(baseX, baseY, baseWidth, baseHeight);
             for (int i = 0; i < 3; i++)
             {
