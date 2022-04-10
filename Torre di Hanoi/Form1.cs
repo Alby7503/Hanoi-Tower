@@ -18,10 +18,9 @@ namespace Torre_di_Hanoi
 
             //disksNumber disks
             short disksNumber = 10;
-            int diskWidth = 50;
+            int diskWidth = 100;
             int diskHeight = 20;
-            //int diskX = baseX + (baseWidth / 2) - ((diskWidth - rodWidth) / 2);
-            int diskX = baseX + (baseWidth - (diskWidth - rodWidth)) / 2;
+            int diskX = baseX + (baseWidth - diskWidth) / 2;
             int diskY = baseY - baseHeight - ((disksNumber - 1) * diskHeight);
             for (short i = 0; i < disksNumber; i++)
             {
@@ -72,9 +71,7 @@ namespace Torre_di_Hanoi
         private void Panel_MouseUp(object? sender, MouseEventArgs e)
         {
             if (sender != null && e.Button == MouseButtons.Left)
-            {
                 ((Panel)sender).Location = Start;
-            }
         }
 
         protected override void OnPaint(PaintEventArgs e)
@@ -88,7 +85,7 @@ namespace Torre_di_Hanoi
                 @base.X += baseWidth + baseX;
             }
             //3 rods
-            int rodX = baseX + (baseWidth / 2);
+            int rodX = baseX + (baseWidth / 2) - (rodWidth / 2);
             int rodHeight = baseWidth;
             int rodY = baseY - baseWidth;
             Rectangle rod = new(rodX, rodY, rodWidth, rodHeight);
