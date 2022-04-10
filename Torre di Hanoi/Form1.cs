@@ -2,30 +2,33 @@ namespace Torre_di_Hanoi
 {
     public partial class Form1 : Form
     {
+        //Base
         private const int baseX = 100;
         private const int baseY = 400;
         private const int baseWidth = 300;
         private const int baseHeight = 20;
-
-        int rodWidth = 20;
-
+        //Rod
+        private const int rodWidth = 20;
+        private const int rodHeight = baseWidth;
+        //Utility
         private readonly Random rnd = new();
         private static readonly Dictionary<Rectangle, Color> pieces = new();
-        
+        private bool PanelsPresent = false;
+
         public Form1()
         {
             InitializeComponent();
 
             //disksNumber disks
             short disksNumber = 10;
-            int diskWidth = 100;
+            int diskWidth = 80;
             int diskHeight = 20;
             int diskX = baseX + (baseWidth - diskWidth) / 2;
             int diskY = baseY - baseHeight - ((disksNumber - 1) * diskHeight);
             for (short i = 0; i < disksNumber; i++)
             {
                 Controls.Add(DrawDisk(diskX, diskY, diskWidth, diskHeight));
-                int newWidth = diskWidth + 20;//= (int)(diskWidth * 1.35f);
+                int newWidth = diskWidth + 20;
                 diskX -= (newWidth - diskWidth) / 2;
                 diskWidth = newWidth;
                 diskY += diskHeight;
@@ -36,7 +39,7 @@ namespace Torre_di_Hanoi
         {
             Panel panel = new();
             panel.BackColor = Color.FromArgb(rnd.Next(256), rnd.Next(256), rnd.Next(256));
-            panel.Location = new Point(x, y);
+            panel.Location = new(x, y);
             panel.Size = new(width, height);
             panel.MouseDown += new(Panel_MouseDown);
             panel.MouseMove += new(Panel_MouseMove);
@@ -74,8 +77,23 @@ namespace Torre_di_Hanoi
                 ((Panel)sender).Location = Start;
         }
 
+        private void DrawPanels()
+        {
+            for (int i = 0; i < 3; i++)
+            {
+                Rectangle @base = pieces.Keys.ElementAt(i);
+                Panel panel = new();
+                Rectangle position = new(@base.X, @base.Y - rodHeight, baseWidth, rodHeight);
+                panel.Location = position.Location;
+                panel.Size = position.Size;
+                panel.BackColor = Color.LightGray;
+                Controls.Add(panel);
+            }
+        }
+
         protected override void OnPaint(PaintEventArgs e)
         {
+            base.OnPaint(e);
             pieces.Clear();
             //3 bases
             Rectangle @base = new(baseX, baseY, baseWidth, baseHeight);
@@ -86,7 +104,6 @@ namespace Torre_di_Hanoi
             }
             //3 rods
             int rodX = baseX + (baseWidth / 2) - (rodWidth / 2);
-            int rodHeight = baseWidth;
             int rodY = baseY - baseWidth;
             Rectangle rod = new(rodX, rodY, rodWidth, rodHeight);
             for (int i = 0; i < 3; i++)
@@ -97,6 +114,12 @@ namespace Torre_di_Hanoi
             //Draw everything
             foreach (KeyValuePair<Rectangle, Color> piece in pieces)
                 e.Graphics.FillRectangle(new SolidBrush(piece.Value), piece.Key);
+            //3 backgrounds
+            if (!PanelsPresent)
+            {
+                PanelsPresent = true;
+                DrawPanels();
+            }
         }
     }
 }
