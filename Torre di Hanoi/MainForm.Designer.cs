@@ -40,7 +40,7 @@
             this.lblDebug.TabIndex = 1;
             this.lblDebug.Text = "Coordinates";
             // 
-            // Form1
+            // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
