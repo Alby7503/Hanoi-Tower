@@ -6,7 +6,9 @@ namespace Torre_di_Hanoi
         private const int baseY = 400;
         private const int baseWidth = 300;
         private const int baseHeight = 20;
-        
+
+        int rodWidth = 20;
+
         private readonly Random rnd = new();
         private static readonly Dictionary<Rectangle, Color> pieces = new();
         
@@ -16,17 +18,18 @@ namespace Torre_di_Hanoi
 
             //disksNumber disks
             short disksNumber = 10;
-            int diskWidth = 20;
+            int diskWidth = 50;
             int diskHeight = 20;
-            int diskX = baseX + baseWidth / 2;
-            int diskY = baseY + disksNumber * diskHeight;
+            //int diskX = baseX + (baseWidth / 2) - ((diskWidth - rodWidth) / 2);
+            int diskX = baseX + (baseWidth - (diskWidth - rodWidth)) / 2;
+            int diskY = baseY - baseHeight - ((disksNumber - 1) * diskHeight);
             for (short i = 0; i < disksNumber; i++)
             {
                 Controls.Add(DrawDisk(diskX, diskY, diskWidth, diskHeight));
-                int newWidth = (int)(diskWidth * 1.3f);
-                diskX -= (int)((newWidth - diskWidth) / 2);
+                int newWidth = diskWidth + 20;//= (int)(diskWidth * 1.35f);
+                diskX -= (newWidth - diskWidth) / 2;
                 diskWidth = newWidth;
-                diskY -= diskHeight;
+                diskY += diskHeight;
             }
         }
 
@@ -88,7 +91,6 @@ namespace Torre_di_Hanoi
             int rodX = baseX + (baseWidth / 2);
             int rodHeight = baseWidth;
             int rodY = baseY - baseWidth;
-            int rodWidth = 20;
             Rectangle rod = new(rodX, rodY, rodWidth, rodHeight);
             for (int i = 0; i < 3; i++)
             {

@@ -36,9 +36,9 @@
             this.lblDebug.AutoSize = true;
             this.lblDebug.Location = new System.Drawing.Point(12, 9);
             this.lblDebug.Name = "lblDebug";
-            this.lblDebug.Size = new System.Drawing.Size(38, 15);
+            this.lblDebug.Size = new System.Drawing.Size(71, 15);
             this.lblDebug.TabIndex = 1;
-            this.lblDebug.Text = "label1";
+            this.lblDebug.Text = "Coordinates";
             // 
             // Form1
             // 
