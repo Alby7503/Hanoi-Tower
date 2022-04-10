@@ -15,7 +15,8 @@ namespace Torre_di_Hanoi
         private static readonly Dictionary<Rectangle, Color> pieces = new();
         private bool PanelsPresent = false;
 
-        private readonly List<Queue<Panel>> Stacks = new() { new Queue<Panel>(), new Queue<Panel>(), new Queue<Panel>() };
+        private readonly Dictionary<Panel, Queue<Panel>> Stacks = new();
+        //private readonly Panel[] Panels = new Panel[3];
 
         public MainForm()
         {
@@ -30,7 +31,7 @@ namespace Torre_di_Hanoi
             for (short i = 0; i < disksNumber; i++)
             {
                 Panel panel = DrawDisk(diskX, diskY, diskWidth, diskHeight);
-                Stacks.First().Enqueue(panel);
+                //Stacks[panel] = new();
                 Controls.Add(panel);
                 int newWidth = diskWidth + 20;
                 diskX -= (newWidth - diskWidth) / 2;
@@ -45,43 +46,83 @@ namespace Torre_di_Hanoi
             panel.BackColor = Color.FromArgb(rnd.Next(256), rnd.Next(256), rnd.Next(256));
             panel.Location = new(x, y);
             panel.Size = new(width, height);
-            panel.MouseDown += new(Panel_MouseDown);
-            panel.MouseMove += new(Panel_MouseMove);
-            panel.MouseUp += new(Panel_MouseUp);
+            panel.MouseDown += new(DiskPanel_MouseDown);
+            panel.MouseMove += new(DiskPanel_MouseMove);
+            panel.MouseUp += new(DiskPanel_MouseUp);
             return panel;
+        }
+
+        private static bool Overlap(Rectangle a, Rectangle b)
+        {
+            return a.IntersectsWith(b);
         }
 
         private Point MouseDownLocation;
         private Point Start;
+        private Panel? Grabbing = null;
 
-        private void Panel_MouseDown(object? sender, MouseEventArgs e)
+        private void DiskPanel_MouseDown(object? sender, MouseEventArgs e)
         {
-            if (sender != null && e.Button == MouseButtons.Left)
-            {
-                MouseDownLocation = e.Location;
-                Start = ((Panel)sender).Location;
-            }
-        }
-
-        private void Panel_MouseMove(object? sender, MouseEventArgs e)
-        {
-            if (sender != null && e.Button == MouseButtons.Left)
+            if (sender != null && Grabbing == null && e.Button == MouseButtons.Left)
             {
                 Panel panel = (Panel)sender;
-                panel.Left = e.X + panel.Left - MouseDownLocation.X;
-                panel.Top = e.Y + panel.Top - MouseDownLocation.Y;
-                Point center = new(panel.Left + panel.Width / 2, panel.Top + panel.Height / 2);
-                lblDebug.Text = center.ToString();
+                Start = panel.Location;
+                Grabbing = panel;
+                MouseDownLocation = e.Location;
             }
         }
 
-        private void Panel_MouseUp(object? sender, MouseEventArgs e)
+        private void ResetBackgroundPanels()
         {
-            if (sender != null && e.Button == MouseButtons.Left)
-                ((Panel)sender).Location = Start;
+            foreach (Panel panel in Stacks.Keys)
+                panel.BackColor = Color.LightGray;
         }
 
-        private void DrawPanels()
+        private void DiskPanel_MouseMove(object? sender, MouseEventArgs e)
+        {
+            if (sender != null && Grabbing != null && e.Button == MouseButtons.Left)
+            {
+                //Mouse grab
+                Panel diskPanel = (Panel)sender;
+                diskPanel.Left = e.X + diskPanel.Left - MouseDownLocation.X;
+                diskPanel.Top = e.Y + diskPanel.Top - MouseDownLocation.Y;
+                //Show center coordinates
+                Point center = new(diskPanel.Left + diskPanel.Width / 2, diskPanel.Top + diskPanel.Height / 2);
+                lblDebug.Text = center.ToString();
+                
+                /*Rectangle diskRectangle = new(diskPanel.Location, diskPanel.Size);
+                Rectangle diskRectangle = new(e.Location, diskPanel.Size);
+                foreach (Panel panel in Panels)
+                {
+                    Rectangle areaRectangle = new(panel.Location, panel.Size);
+                    panel.BackColor = Color.LightGray;
+                    if (Overlap(diskRectangle, areaRectangle))
+                    {
+                        panel.BackColor = Color.Red;
+                    }
+                }*/
+            }
+        }
+
+        private void DiskPanel_MouseUp(object? sender, MouseEventArgs e)
+        {
+            if (sender != null && Grabbing != null && e.Button == MouseButtons.Left)
+            {
+                ((Panel)sender).Location = Start;
+                Grabbing = null;
+            }
+            ResetBackgroundPanels();
+        }
+
+        private void BackPanel_MouseEnter(object? sender, EventArgs e)
+        {
+            if (sender != null && Grabbing != null)
+            {
+                Panel panel = (Panel)sender;
+            }
+        }
+
+        private void DrawBackgroundPanels()
         {
             for (int i = 0; i < 3; i++)
             {
@@ -91,6 +132,8 @@ namespace Torre_di_Hanoi
                 panel.Location = position.Location;
                 panel.Size = position.Size;
                 panel.BackColor = Color.LightGray;
+                panel.MouseEnter += new(BackPanel_MouseEnter);
+                Stacks[panel] = new();
                 Controls.Add(panel);
             }
         }
@@ -122,7 +165,7 @@ namespace Torre_di_Hanoi
             if (!PanelsPresent)
             {
                 PanelsPresent = true;
-                DrawPanels();
+                DrawBackgroundPanels();
             }
         }
     }
