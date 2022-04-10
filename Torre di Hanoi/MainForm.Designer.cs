@@ -1,6 +1,6 @@
 ﻿namespace Torre_di_Hanoi
 {
-    partial class Form1
+    partial class MainForm
     {
         /// <summary>
         ///  Required designer variable.

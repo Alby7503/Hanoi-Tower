@@ -1,6 +1,6 @@
 namespace Torre_di_Hanoi
 {
-    public partial class Form1 : Form
+    public partial class MainForm : Form
     {
         //Base
         private const int baseX = 100;
@@ -15,7 +15,9 @@ namespace Torre_di_Hanoi
         private static readonly Dictionary<Rectangle, Color> pieces = new();
         private bool PanelsPresent = false;
 
-        public Form1()
+        private readonly List<Queue<Panel>> Stacks = new() { new Queue<Panel>(), new Queue<Panel>(), new Queue<Panel>() };
+
+        public MainForm()
         {
             InitializeComponent();
 
@@ -27,7 +29,9 @@ namespace Torre_di_Hanoi
             int diskY = baseY - baseHeight - ((disksNumber - 1) * diskHeight);
             for (short i = 0; i < disksNumber; i++)
             {
-                Controls.Add(DrawDisk(diskX, diskY, diskWidth, diskHeight));
+                Panel panel = DrawDisk(diskX, diskY, diskWidth, diskHeight);
+                Stacks.First().Enqueue(panel);
+                Controls.Add(panel);
                 int newWidth = diskWidth + 20;
                 diskX -= (newWidth - diskWidth) / 2;
                 diskWidth = newWidth;
