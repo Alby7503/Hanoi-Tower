@@ -20,9 +20,17 @@ namespace Torre_di_Hanoi
         private static readonly Dictionary<Rectangle, Color> pieces = new();
         private readonly Dictionary<Panel, Queue<Panel>> Stacks = new();
 
+        private readonly MouseEventHandler MouseDownHandler;
+        private readonly MouseEventHandler MouseMoveHandler;
+        private readonly MouseEventHandler MouseUpHandler;
+
+
         public MainForm()
         {
             InitializeComponent();
+            MouseDownHandler = new(DiskPanel_MouseDown);
+            MouseMoveHandler = new(DiskPanel_MouseMove);
+            MouseUpHandler = new(DiskPanel_MouseUp);
         }
 
         private Panel DrawDisk(int x, int y, int width, int height)
@@ -33,9 +41,9 @@ namespace Torre_di_Hanoi
             panel.Location = new(x, y);
             panel.Size = new(width, height);
             //Grab events
-            panel.MouseDown += new(DiskPanel_MouseDown);
+            /*panel.MouseDown += new(DiskPanel_MouseDown);
             panel.MouseMove += new(DiskPanel_MouseMove);
-            panel.MouseUp += new(DiskPanel_MouseUp);
+            panel.MouseUp += new(DiskPanel_MouseUp);*/
             return panel;
         }
 
@@ -62,12 +70,6 @@ namespace Torre_di_Hanoi
             }
         }
 
-        private void ResetBackgroundPanels()
-        {
-            foreach (Panel panel in Stacks.Keys)
-                panel.BackColor = Color.LightGray;
-        }
-
         private void DiskPanel_MouseMove(object? sender, MouseEventArgs e)
         {
             if (sender != null && Grabbing != null && e.Button == MouseButtons.Left)
@@ -79,18 +81,22 @@ namespace Torre_di_Hanoi
                 //Show center coordinates
                 Point center = new(diskPanel.Left + diskPanel.Width / 2, diskPanel.Top + diskPanel.Height / 2);
                 lblDebug.Text = center.ToString();
+            }
+        }
 
-                /*Rectangle diskRectangle = new(diskPanel.Location, diskPanel.Size);
-                Rectangle diskRectangle = new(e.Location, diskPanel.Size);
-                foreach (Panel panel in Panels)
-                {
-                    Rectangle areaRectangle = new(panel.Location, panel.Size);
-                    panel.BackColor = Color.LightGray;
-                    if (Overlap(diskRectangle, areaRectangle))
-                    {
-                        panel.BackColor = Color.Red;
-                    }
-                }*/
+        private void SetGrabbable(Panel p, bool Grabbable)
+        {
+            if (Grabbable)
+            {
+                p.MouseDown += MouseDownHandler;
+                p.MouseMove += MouseMoveHandler;
+                p.MouseUp += MouseUpHandler;
+            }
+            else
+            {
+                p.MouseDown -= MouseDownHandler;
+                p.MouseMove -= MouseMoveHandler;
+                p.MouseUp -= MouseUpHandler;
             }
         }
 
@@ -103,10 +109,18 @@ namespace Torre_di_Hanoi
                 if (target != null && !Stacks[target].Contains(Grabbing))
                 {
                     foreach (Panel panel in Stacks.Keys)
-                        if (panel != target)
+                        if (!panel.Equals(target))
                             if (Stacks[panel].Contains(Grabbing))
                             {
+                                //Remove disk from previous stack
                                 Stacks[panel].Dequeue();
+                                //Make the first disk of the old stack grabbable
+                                if (Stacks[panel].TryPeek(out Panel? oldFirst))
+                                    SetGrabbable(oldFirst, true);
+                                //Remove the grab events from the first disk of the target stack
+                                if (Stacks[target].TryPeek(out Panel? newFirst))
+                                    SetGrabbable(newFirst, false);
+                                //Enqueue the new disk onto the target stack
                                 Stacks[target].Enqueue(Grabbing);
                                 break;
                             }
@@ -115,7 +129,6 @@ namespace Torre_di_Hanoi
                     diskPanel.Location = Start;
                 Grabbing = null;
             }
-            ResetBackgroundPanels();
         }
 
         private void DrawBackgroundPanels()
@@ -128,10 +141,10 @@ namespace Torre_di_Hanoi
                 Rectangle position = new(@base.X, @base.Y - rodHeight, baseWidth, rodHeight);
                 panel.Location = position.Location;
                 panel.Size = position.Size;
-                panel.BackColor = Color.LightGray;
+                panel.BackColor = Color.Transparent;
                 Stacks[panel] = new();
                 Controls.Add(panel);
-                //panel.SendToBack();
+                panel.SendToBack();
             }
             //disksNumber disks
             const int diskWidthIncrement = 20;
@@ -148,6 +161,7 @@ namespace Torre_di_Hanoi
                 diskWidth = newWidth;
                 diskY += diskHeight;
             }
+            SetGrabbable(Stacks[Stacks.Keys.First()].First(), true);
         }
 
         protected override void OnPaint(PaintEventArgs e)
@@ -171,8 +185,7 @@ namespace Torre_di_Hanoi
                 rod.X += baseWidth + baseX;
             }
             //Draw everything
-            foreach (KeyValuePair<Rectangle, Color> piece in pieces)
-                e.Graphics.FillRectangle(new SolidBrush(piece.Value), piece.Key);
+            e.Graphics.FillRectangles(new SolidBrush(Color.Black), pieces.Keys.ToArray());
             //3 backgrounds
             if (!PanelsPresent)
             {
