@@ -16,7 +16,6 @@ namespace Torre_di_Hanoi
         private bool PanelsPresent = false;
 
         private readonly Dictionary<Panel, Queue<Panel>> Stacks = new();
-        //private readonly Panel[] Panels = new Panel[3];
 
         public MainForm()
         {
@@ -31,7 +30,7 @@ namespace Torre_di_Hanoi
             for (short i = 0; i < disksNumber; i++)
             {
                 Panel panel = DrawDisk(diskX, diskY, diskWidth, diskHeight);
-                //Stacks[panel] = new();
+                Stacks[Stacks.Keys.First()].Enqueue(panel);
                 Controls.Add(panel);
                 int newWidth = diskWidth + 20;
                 diskX -= (newWidth - diskWidth) / 2;
@@ -60,6 +59,7 @@ namespace Torre_di_Hanoi
         private Point MouseDownLocation;
         private Point Start;
         private Panel? Grabbing = null;
+        private Panel? Target = null;
 
         private void DiskPanel_MouseDown(object? sender, MouseEventArgs e)
         {
@@ -108,7 +108,14 @@ namespace Torre_di_Hanoi
         {
             if (sender != null && Grabbing != null && e.Button == MouseButtons.Left)
             {
-                ((Panel)sender).Location = Start;
+                Panel diskPanel = (Panel)sender;
+                if (Target != null && !Stacks[Target].Contains(Grabbing))
+                {
+                    Stacks[Target].Enqueue(Grabbing);
+                    Target = null;
+                }
+                else
+                    diskPanel.Location = Start;
                 Grabbing = null;
             }
             ResetBackgroundPanels();
@@ -118,7 +125,7 @@ namespace Torre_di_Hanoi
         {
             if (sender != null && Grabbing != null)
             {
-                Panel panel = (Panel)sender;
+                Target = (Panel)sender;
             }
         }
 
