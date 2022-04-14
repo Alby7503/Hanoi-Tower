@@ -258,9 +258,14 @@ namespace Torre_di_Hanoi
             double steps = Math.Pow(2, disksNumber) - 1;
             if (disksNumber % 2 == 0)
             {
+                List<Panel> stackList = Stacks.Keys.ToList();
                 for (int i = 0; i < steps; i++)
                 {
-                    MoveDisk(Smallest, Stacks.Keys.ToList()[Stacks.Keys.ToList().IndexOf(((Disk)Smallest.Tag).backPanel) + 1]);
+                    int nextPanel = stackList.IndexOf(((Disk)Smallest.Tag).backPanel) + 1;
+                    if (nextPanel > stackList.Count - 1)
+                        nextPanel = 0;
+                    MoveDisk(Smallest, stackList[nextPanel]);
+                    //MoveDisk(Smallest, Stacks.Keys.ToList()[Stacks.Keys.ToList().IndexOf(((Disk)Smallest.Tag).backPanel) + 1]);
                     break;
                 }
             }
