@@ -87,10 +87,6 @@ namespace Torre_di_Hanoi
 
         private void SetGrabbable(Panel p, bool Grabbable)
         {
-            if (p == null)
-            {
-                throw new Exception();
-            }
             if (Grabbable)
             {
                 p.MouseDown += MouseDownHandler;
@@ -120,41 +116,28 @@ namespace Torre_di_Hanoi
                 {
                     //Find the target tower, if any (if not, return to original position)
                     Panel? target = FindSelected();
-                    /*if (target != null && !Stacks[target].Contains(Grabbing))
-                    {
-                        //Iterate over panels to find where the disk was
-                        foreach (Panel origin in Stacks.Keys)
-                            if (!origin.Equals(target))
-                                if (Stacks[origin].Contains(diskPanel))
-                                {
-                                    string localEvent = "Grab - " + diskPanel.Tag.ToString() + " - origin: " + Stacks.Keys.ToList().IndexOf(origin).ToString() + " - taget: " + Stacks.Keys.ToList().IndexOf(target).ToString();
-                                    //Remove disk from previous stack
-                                    Stacks[origin].Pop();
-                                    //Make the first disk of the old stack grabbable
-                                    if (Stacks[origin].TryPeek(out Panel? newOriginFirst))
-                                        SetGrabbable(newOriginFirst, true);
-                                    //Remove the grab events from the first disk of the target stack
-                                    if (Stacks[target].TryPeek(out Panel? oldTargetFirst))
-                                        SetGrabbable(oldTargetFirst, false);
-                                    //Enqueue the new disk onto the target stack
-                                    Stacks[target].Push(diskPanel);
-                                    //Add to listbox
-                                    ListEvent(localEvent);
-                                    break;
-                                }
-                    }
-                    else
-                        diskPanel.Location = Start;*/
                     Disk diskStruct = (Disk)diskPanel.Tag;
                     if (target != null && target != diskStruct.backPanel)
                     {
+                        if (Stacks[target].TryPeek(out Panel? oldFirstDisk))
+                        {
+                            //Get the struct of the first target stack disk
+                            Disk oldFirstDiskStruct = (Disk)oldFirstDisk.Tag;
+                            //Check if it's smaller
+                            if (oldFirstDiskStruct.index < diskStruct.index)
+                            {
+                                diskPanel.Location = Start;
+                                Grabbing = null;
+                                return;
+                            }
+                        }
                         //Remove disk from previous stack
                         Stacks[diskStruct.backPanel].Pop();
                         //Make the first disk of the old stack grabbable
                         if (Stacks[diskStruct.backPanel].TryPeek(out Panel? newFirstDisk))
                             SetGrabbable(newFirstDisk, true);
                         //Remove the grab events from the first disk of the target stack
-                        if (Stacks[target].TryPeek(out Panel? oldFirstDisk))
+                        if (oldFirstDisk != null)
                             SetGrabbable(oldFirstDisk, false);
                         //Enqueue the new disk onto the target stack
                         diskStruct.backPanel = target;
@@ -173,12 +156,14 @@ namespace Torre_di_Hanoi
             //3 backrgound panels
             for (int i = 0; i < 3; i++)
             {
+                //Create the size based on the base width and the rod height
                 Rectangle @base = pieces.Keys.ElementAt(i);
                 Panel panel = new();
                 Rectangle position = new(@base.X, @base.Y - rodHeight, baseWidth, rodHeight);
                 panel.Location = position.Location;
                 panel.Size = position.Size;
                 panel.BackColor = Color.Transparent;
+                //Initialize a new stack for each panel
                 Stacks[panel] = new();
                 Controls.Add(panel);
                 panel.SendToBack();
@@ -202,7 +187,7 @@ namespace Torre_di_Hanoi
                 diskWidth = newWidth;
                 diskY += diskHeight;
             }
-            //No, aggiungi i pannelli al contrario...
+            //No, aggiungi i dischi al contrario...
             Stack<Panel> reversed = new();
             while (Stacks[firstPanel].Count != 0)
                 reversed.Push(Stacks[firstPanel].Pop());
