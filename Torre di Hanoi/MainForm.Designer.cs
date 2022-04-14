@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.lblDebug = new System.Windows.Forms.Label();
+            this.lbEvents = new System.Windows.Forms.ListBox();
             this.SuspendLayout();
             // 
             // lblDebug
@@ -40,11 +41,21 @@
             this.lblDebug.TabIndex = 1;
             this.lblDebug.Text = "Coordinates";
             // 
+            // lbEvents
+            // 
+            this.lbEvents.FormattingEnabled = true;
+            this.lbEvents.ItemHeight = 15;
+            this.lbEvents.Location = new System.Drawing.Point(12, 455);
+            this.lbEvents.Name = "lbEvents";
+            this.lbEvents.Size = new System.Drawing.Size(1260, 94);
+            this.lbEvents.TabIndex = 2;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1284, 561);
+            this.Controls.Add(this.lbEvents);
             this.Controls.Add(this.lblDebug);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D;
             this.MaximizeBox = false;
@@ -59,5 +70,6 @@
         }
         #endregion
         private Label lblDebug;
+        private ListBox lbEvents;
     }
 }

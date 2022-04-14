@@ -18,7 +18,7 @@ namespace Torre_di_Hanoi
         private bool PanelsPresent = false;
         private readonly Random rnd = new();
         private static readonly Dictionary<Rectangle, Color> pieces = new();
-        private readonly Dictionary<Panel, Queue<Panel>> Stacks = new();
+        private readonly Dictionary<Panel, Stack<Panel>> Stacks = new();
 
         private readonly MouseEventHandler MouseDownHandler;
         private readonly MouseEventHandler MouseMoveHandler;
@@ -37,7 +37,7 @@ namespace Torre_di_Hanoi
         {
             Panel panel = new();
             //Style
-            //panel.BackColor = Color.FromArgb(rnd.Next(256), rnd.Next(256), rnd.Next(256));
+            panel.BackColor = Color.FromArgb(rnd.Next(256), rnd.Next(256), rnd.Next(256));
             panel.BackColor = Color.Cyan;
             panel.Location = new(x, y);
             panel.Size = new(width, height);
@@ -45,11 +45,12 @@ namespace Torre_di_Hanoi
         }
 
         private Panel? FindSelected()
-        {
+        {/*
             foreach (Panel panel in Stacks.Keys)
                 if (panel.ClientRectangle.Contains(panel.PointToClient(Cursor.Position)))
                     return panel;
-            return null;
+            return null;*/
+            return Stacks.Keys.Where(panel => panel.ClientRectangle.Contains(panel.PointToClient(Cursor.Position))).FirstOrDefault();
         }
 
         private Point MouseDownLocation;
@@ -103,6 +104,12 @@ namespace Torre_di_Hanoi
             }
         }
 
+        private void ListEvent(string listEvent)
+        {
+            lbEvents.Items.Add(listEvent);
+            lbEvents.SelectedIndex = lbEvents.Items.Count - 1; //= -1
+        }
+
         private void DiskPanel_MouseUp(object? sender, MouseEventArgs e)
         {
             if (sender != null)
@@ -117,21 +124,28 @@ namespace Torre_di_Hanoi
                         //Iterate over panels to find where the disk was
                         foreach (Panel origin in Stacks.Keys)
                             if (!origin.Equals(target))
-                                if (Stacks[origin].Contains(Grabbing))
+                                if (Stacks[origin].Contains(diskPanel))
                                 {
+                                    string localEvent = "Grab - " + diskPanel.Tag.ToString() + " - origin: " + Stacks.Keys.ToList().IndexOf(origin).ToString() + " - taget: " + Stacks.Keys.ToList().IndexOf(target).ToString();
                                     //Remove disk from previous stack
-                                    Stacks[origin].Dequeue();
+                                    //Stacks[origin].Dequeue();
+                                    Stacks[origin].Pop();
                                     //Make the first disk of the old stack grabbable
                                     if (Stacks[origin].TryPeek(out Panel? newOriginFirst))
+                                    {
+                                        localEvent += " - newOriginFirst is " + newOriginFirst.Tag.ToString();
                                         SetGrabbable(newOriginFirst, true);
+                                    }
                                     //Remove the grab events from the first disk of the target stack
                                     if (Stacks[target].TryPeek(out Panel? oldTargetFirst))
                                     {
-                                        oldTargetFirst.BackColor = Color.Black;
                                         SetGrabbable(oldTargetFirst, false);
                                     }
                                     //Enqueue the new disk onto the target stack
-                                    Stacks[target].Enqueue(Grabbing);
+                                    //Stacks[target].Enqueue(diskPanel);
+                                    Stacks[target].Push(diskPanel);
+                                    //add to listbox
+                                    ListEvent(localEvent);
                                     break;
                                 }
                     }
@@ -165,9 +179,10 @@ namespace Torre_di_Hanoi
             {
                 //Create a disk, add it to the form and enqueue it on the first stack
                 Panel panel = DrawDisk(diskX, diskY, diskWidth, diskHeight);
+                panel.Tag = i;
                 Controls.Add(panel);
                 panel.BringToFront();
-                Stacks[Stacks.Keys.First()].Enqueue(panel);
+                Stacks[Stacks.Keys.First()].Push(panel);
                 int newWidth = diskWidth + diskWidthIncrement;
                 diskX -= (newWidth - diskWidth) / 2;
                 diskWidth = newWidth;
