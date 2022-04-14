@@ -1,7 +1,11 @@
+using System.Text;
+
 namespace Torre_di_Hanoi
 {
     public partial class MainForm : Form
     {
+        //Panels
+        private const short towersNumber = 3;
         //Base
         private const int baseX = 100;
         private const int baseY = 400;
@@ -15,11 +19,12 @@ namespace Torre_di_Hanoi
         private static readonly int diskHeight = 20;
         private static readonly short disksNumber = 10;
         //Utility
+        private Panel? Smallest;
         private bool PanelsPresent = false;
         private readonly Random rnd = new();
         private static readonly List<Rectangle> Pieces = new();
         private readonly Dictionary<Panel, Stack<Panel>> Stacks = new();
-
+        //Handlers
         private readonly MouseEventHandler MouseDownHandler;
         private readonly MouseEventHandler MouseMoveHandler;
         private readonly MouseEventHandler MouseUpHandler;
@@ -140,10 +145,8 @@ namespace Torre_di_Hanoi
                         if (oldFirstDisk != null)
                             SetGrabbable(oldFirstDisk, false);
                         //Enqueue the new disk onto the target stack
-                        diskStruct.backPanel = target;
-                        diskPanel.Tag = diskStruct;
-                        Stacks[target].Push(diskPanel);
                         MoveDisk(diskPanel, target);
+                        Stacks[target].Push(diskPanel);
                     }
                     else
                         diskPanel.Location = Start;
@@ -154,16 +157,27 @@ namespace Torre_di_Hanoi
 
         private void MoveDisk(Panel disk, Panel target)
         {
+            //Move the disk
             Point diskPoint = disk.Location;
             diskPoint.X = target.Location.X + (target.Width / 2) - disk.Width / 2;
-            diskPoint.Y = Pieces[Stacks.Keys.ToList().IndexOf(target)].Y - diskHeight * Stacks[target].Count;
+            List<Panel> stackList = Stacks.Keys.ToList();
+            int indexOfBase = stackList.IndexOf(target);
+            diskPoint.Y = Pieces[indexOfBase].Y - (diskHeight * (Stacks[target].Count + 1));
             disk.Location = diskPoint;
+            //Log the movement
+            Disk diskStruct = (Disk)disk.Tag;
+            int diskIndex = diskStruct.index;
+            int originTowerIndex = stackList.IndexOf(diskStruct.backPanel);
+            diskStruct.backPanel = target;
+            disk.Tag = diskStruct;
+            ListEvent($"Moved disk {diskIndex} from tower {originTowerIndex} to tower {indexOfBase}");
+
         }
 
         private void DrawBackgroundPanels()
         {
-            //3 backrgound panels
-            for (int i = 0; i < 3; i++)
+            //towersNumber backrgound panels
+            for (int i = 0; i < towersNumber; i++)
             {
                 //Create the size based on the base width and the rod height
                 Rectangle @base = Pieces[i];
@@ -184,13 +198,17 @@ namespace Torre_di_Hanoi
             Panel firstPanel = Stacks.Keys.First();
             for (short i = 0; i < disksNumber; i++)
             {
-                //Create a disk, add it to the form and enqueue it on the first stack
+                //Create a disk panel
                 Panel diskPanel = DrawDisk(diskX, diskY, diskWidth, diskHeight);
+                //Create and assign a disk struct, containing index and parent panel
                 Disk diskStruct = new(i, firstPanel);
                 diskPanel.Tag = diskStruct;
+                //Add the disk to the form
                 Controls.Add(diskPanel);
                 diskPanel.BringToFront();
+                //Push the disk in the stack
                 Stacks[firstPanel].Push(diskPanel);
+                //Calculate the next disk position
                 int newWidth = diskWidth + diskWidthIncrement;
                 diskX -= (newWidth - diskWidth) / 2;
                 diskWidth = newWidth;
@@ -201,25 +219,26 @@ namespace Torre_di_Hanoi
             while (Stacks[firstPanel].Count != 0)
                 reversed.Push(Stacks[firstPanel].Pop());
             Stacks[firstPanel] = reversed;
-            SetGrabbable(Stacks[firstPanel].Peek(), true);
+            Smallest = Stacks[firstPanel].Peek();
+            SetGrabbable(Smallest, true);
         }
 
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
             Pieces.Clear();
-            //3 bases
+            //towersNumber bases
             Rectangle @base = new(baseX, baseY, baseWidth, baseHeight);
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < towersNumber; i++)
             {
                 Pieces.Add(@base);
                 @base.X += baseWidth + baseX;
             }
-            //3 rods
+            //towersNumber rods
             int rodX = baseX + (baseWidth / 2) - (rodWidth / 2);
             int rodY = baseY - baseWidth;
             Rectangle rod = new(rodX, rodY, rodWidth, rodHeight);
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < towersNumber; i++)
             {
                 Pieces.Add(rod);
                 rod.X += baseWidth + baseX;
@@ -231,6 +250,19 @@ namespace Torre_di_Hanoi
             {
                 PanelsPresent = true;
                 DrawBackgroundPanels();
+            }
+        }
+
+        public void Resolve(object sender, EventArgs e)
+        {
+            double steps = Math.Pow(2, disksNumber) - 1;
+            if (disksNumber % 2 == 0)
+            {
+                for (int i = 0; i < steps; i++)
+                {
+                    MoveDisk(Smallest, Stacks.Keys.ToList()[Stacks.Keys.ToList().IndexOf(((Disk)Smallest.Tag).backPanel) + 1]);
+                    break;
+                }
             }
         }
     }

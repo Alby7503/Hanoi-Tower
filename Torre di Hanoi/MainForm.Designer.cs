@@ -30,6 +30,7 @@
         {
             this.lblDebug = new System.Windows.Forms.Label();
             this.lbEvents = new System.Windows.Forms.ListBox();
+            this.btnResolve = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // lblDebug
@@ -50,11 +51,22 @@
             this.lbEvents.Size = new System.Drawing.Size(1260, 94);
             this.lbEvents.TabIndex = 2;
             // 
+            // btnResolve
+            // 
+            this.btnResolve.Location = new System.Drawing.Point(1197, 426);
+            this.btnResolve.Name = "btnResolve";
+            this.btnResolve.Size = new System.Drawing.Size(75, 23);
+            this.btnResolve.TabIndex = 3;
+            this.btnResolve.Text = "button1";
+            this.btnResolve.UseVisualStyleBackColor = true;
+            this.btnResolve.Click += new System.EventHandler(this.Resolve);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1284, 561);
+            this.Controls.Add(this.btnResolve);
             this.Controls.Add(this.lbEvents);
             this.Controls.Add(this.lblDebug);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D;
@@ -71,5 +83,6 @@
         #endregion
         private Label lblDebug;
         private ListBox lbEvents;
+        private Button btnResolve;
     }
 }
