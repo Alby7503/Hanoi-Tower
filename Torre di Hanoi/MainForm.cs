@@ -124,29 +124,7 @@ namespace Torre_di_Hanoi
                     Disk diskStruct = (Disk)diskPanel.Tag;
                     if (target != null && target != diskStruct.backPanel)
                     {
-                        if (Stacks[target].TryPeek(out Panel? oldFirstDisk))
-                        {
-                            //Get the struct of the first target stack disk
-                            Disk oldFirstDiskStruct = (Disk)oldFirstDisk.Tag;
-                            //Check if it's smaller
-                            if (oldFirstDiskStruct.index < diskStruct.index)
-                            {
-                                diskPanel.Location = Start;
-                                Grabbing = null;
-                                return;
-                            }
-                        }
-                        //Remove disk from previous stack
-                        Stacks[diskStruct.backPanel].Pop();
-                        //Make the first disk of the old stack grabbable
-                        if (Stacks[diskStruct.backPanel].TryPeek(out Panel? newFirstDisk))
-                            SetGrabbable(newFirstDisk, true);
-                        //Remove the grab events from the first disk of the target stack
-                        if (oldFirstDisk != null)
-                            SetGrabbable(oldFirstDisk, false);
-                        //Enqueue the new disk onto the target stack
                         MoveDisk(diskPanel, target);
-                        Stacks[target].Push(diskPanel);
                     }
                     else
                         diskPanel.Location = Start;
@@ -155,23 +133,44 @@ namespace Torre_di_Hanoi
             }
         }
 
-        private void MoveDisk(Panel disk, Panel target)
+        private void MoveDisk(Panel diskPanel, Panel target)
         {
+            Disk diskStruct = (Disk)diskPanel.Tag;
+            if (Stacks[target].TryPeek(out Panel? oldFirstDisk))
+            {
+                //Get the struct of the first target stack disk
+                Disk oldFirstDiskStruct = (Disk)oldFirstDisk.Tag;
+                //Check if it's smaller
+                if (oldFirstDiskStruct.index < diskStruct.index)
+                {
+                    diskPanel.Location = Start;
+                    Grabbing = null;
+                    return;
+                }
+            }
+            //Remove disk from previous stack
+            Stacks[diskStruct.backPanel].Pop();
+            //Make the first disk of the old stack grabbable
+            if (Stacks[diskStruct.backPanel].TryPeek(out Panel? newFirstDisk))
+                SetGrabbable(newFirstDisk, true);
+            //Remove the grab events from the first disk of the target stack
+            if (oldFirstDisk != null)
+                SetGrabbable(oldFirstDisk, false);
+            //Enqueue the new disk onto the target stack
             //Move the disk
-            Point diskPoint = disk.Location;
-            diskPoint.X = target.Location.X + (target.Width / 2) - disk.Width / 2;
+            Point diskPoint = diskPanel.Location;
+            diskPoint.X = target.Location.X + (target.Width / 2) - diskPanel.Width / 2;
             List<Panel> stackList = Stacks.Keys.ToList();
             int indexOfBase = stackList.IndexOf(target);
             diskPoint.Y = Pieces[indexOfBase].Y - (diskHeight * (Stacks[target].Count + 1));
-            disk.Location = diskPoint;
+            diskPanel.Location = diskPoint;
             //Log the movement
-            Disk diskStruct = (Disk)disk.Tag;
             int diskIndex = diskStruct.index;
             int originTowerIndex = stackList.IndexOf(diskStruct.backPanel);
             diskStruct.backPanel = target;
-            disk.Tag = diskStruct;
+            diskPanel.Tag = diskStruct;
             ListEvent($"Moved disk {diskIndex} from tower {originTowerIndex} to tower {indexOfBase}");
-
+            Stacks[target].Push(diskPanel);
         }
 
         private void DrawBackgroundPanels()
@@ -259,14 +258,37 @@ namespace Torre_di_Hanoi
             if (disksNumber % 2 == 0)
             {
                 List<Panel> stackList = Stacks.Keys.ToList();
+                int smallestTowerIndex;
                 for (int i = 0; i < steps; i++)
                 {
-                    int nextPanel = stackList.IndexOf(((Disk)Smallest.Tag).backPanel) + 1;
-                    if (nextPanel > stackList.Count - 1)
-                        nextPanel = 0;
-                    MoveDisk(Smallest, stackList[nextPanel]);
-                    //MoveDisk(Smallest, Stacks.Keys.ToList()[Stacks.Keys.ToList().IndexOf(((Disk)Smallest.Tag).backPanel) + 1]);
-                    break;
+                    smallestTowerIndex = stackList.IndexOf(((Disk)Smallest.Tag).backPanel) + 1;
+                    if (smallestTowerIndex > stackList.Count - 1)
+                        smallestTowerIndex = 0;
+                    MoveDisk(Smallest, stackList[smallestTowerIndex]);
+
+                    List<Panel> otherTowers = stackList.Where(x => x != stackList[smallestTowerIndex]).ToList();
+                    /*if (((Disk)Stacks[otherTowers[0]].Peek().Tag).index < ((Disk)Stacks[otherTowers[1]].Peek().Tag).index)
+                        MoveDisk(otherTowers[0], stackList[smallestTowerIndex]);
+                    else
+                        MoveDisk(otherTowers[1], stackList[smallestTowerIndex]);*/
+
+                    Stacks[otherTowers[0]].TryPeek(out Panel firstDisk);
+                    Stacks[otherTowers[1]].TryPeek(out Panel secondDisk);
+
+                    if (firstDisk != null && secondDisk != null)
+                    {
+                        if (((Disk)firstDisk.Tag).index < ((Disk)secondDisk.Tag).index)
+                            MoveDisk(firstDisk, stackList[smallestTowerIndex]);
+                        else
+                            MoveDisk(secondDisk, stackList[smallestTowerIndex]);
+                    }
+                    else if (firstDisk != null)
+                        MoveDisk(firstDisk, stackList[smallestTowerIndex]);
+                    else if (secondDisk != null)
+                        MoveDisk(secondDisk, stackList[smallestTowerIndex]);
+
+                    //break;
+                    Thread.Sleep(500);
                 }
             }
         }
