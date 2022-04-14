@@ -37,13 +37,10 @@ namespace Torre_di_Hanoi
         {
             Panel panel = new();
             //Style
-            panel.BackColor = Color.FromArgb(rnd.Next(256), rnd.Next(256), rnd.Next(256));
+            //panel.BackColor = Color.FromArgb(rnd.Next(256), rnd.Next(256), rnd.Next(256));
+            panel.BackColor = Color.Cyan;
             panel.Location = new(x, y);
             panel.Size = new(width, height);
-            //Grab events
-            /*panel.MouseDown += new(DiskPanel_MouseDown);
-            panel.MouseMove += new(DiskPanel_MouseMove);
-            panel.MouseUp += new(DiskPanel_MouseUp);*/
             return panel;
         }
 
@@ -86,14 +83,20 @@ namespace Torre_di_Hanoi
 
         private void SetGrabbable(Panel p, bool Grabbable)
         {
+            if (p == null)
+            {
+                throw new Exception();
+            }
             if (Grabbable)
             {
+                p.BackColor = Color.Green;
                 p.MouseDown += MouseDownHandler;
                 p.MouseMove += MouseMoveHandler;
                 p.MouseUp += MouseUpHandler;
             }
             else
             {
+                p.BackColor = Color.Red;
                 p.MouseDown -= MouseDownHandler;
                 p.MouseMove -= MouseMoveHandler;
                 p.MouseUp -= MouseUpHandler;
@@ -102,32 +105,40 @@ namespace Torre_di_Hanoi
 
         private void DiskPanel_MouseUp(object? sender, MouseEventArgs e)
         {
-            if (sender != null && Grabbing != null && e.Button == MouseButtons.Left)
+            if (sender != null)
             {
-                Panel diskPanel = (Panel)sender;
-                Panel? target = FindSelected();
-                if (target != null && !Stacks[target].Contains(Grabbing))
+                Panel? diskPanel = (Panel)sender;
+                if (Grabbing == diskPanel && e.Button == MouseButtons.Left)
                 {
-                    foreach (Panel panel in Stacks.Keys)
-                        if (!panel.Equals(target))
-                            if (Stacks[panel].Contains(Grabbing))
-                            {
-                                //Remove disk from previous stack
-                                Stacks[panel].Dequeue();
-                                //Make the first disk of the old stack grabbable
-                                if (Stacks[panel].TryPeek(out Panel? oldFirst))
-                                    SetGrabbable(oldFirst, true);
-                                //Remove the grab events from the first disk of the target stack
-                                if (Stacks[target].TryPeek(out Panel? newFirst))
-                                    SetGrabbable(newFirst, false);
-                                //Enqueue the new disk onto the target stack
-                                Stacks[target].Enqueue(Grabbing);
-                                break;
-                            }
+                    //Find the target tower, if any (if not, return to original position)
+                    Panel? target = FindSelected();
+                    if (target != null && !Stacks[target].Contains(Grabbing))
+                    {
+                        //Iterate over panels to find where the disk was
+                        foreach (Panel origin in Stacks.Keys)
+                            if (!origin.Equals(target))
+                                if (Stacks[origin].Contains(Grabbing))
+                                {
+                                    //Remove disk from previous stack
+                                    Stacks[origin].Dequeue();
+                                    //Make the first disk of the old stack grabbable
+                                    if (Stacks[origin].TryPeek(out Panel? newOriginFirst))
+                                        SetGrabbable(newOriginFirst, true);
+                                    //Remove the grab events from the first disk of the target stack
+                                    if (Stacks[target].TryPeek(out Panel? oldTargetFirst))
+                                    {
+                                        oldTargetFirst.BackColor = Color.Black;
+                                        SetGrabbable(oldTargetFirst, false);
+                                    }
+                                    //Enqueue the new disk onto the target stack
+                                    Stacks[target].Enqueue(Grabbing);
+                                    break;
+                                }
+                    }
+                    else
+                        diskPanel.Location = Start;
+                    Grabbing = null;
                 }
-                else
-                    diskPanel.Location = Start;
-                Grabbing = null;
             }
         }
 
@@ -152,10 +163,11 @@ namespace Torre_di_Hanoi
             int diskY = baseY - baseHeight - ((disksNumber - 1) * diskHeight);
             for (short i = 0; i < disksNumber; i++)
             {
+                //Create a disk, add it to the form and enqueue it on the first stack
                 Panel panel = DrawDisk(diskX, diskY, diskWidth, diskHeight);
-                Stacks[Stacks.Keys.First()].Enqueue(panel);
                 Controls.Add(panel);
                 panel.BringToFront();
+                Stacks[Stacks.Keys.First()].Enqueue(panel);
                 int newWidth = diskWidth + diskWidthIncrement;
                 diskX -= (newWidth - diskWidth) / 2;
                 diskWidth = newWidth;
