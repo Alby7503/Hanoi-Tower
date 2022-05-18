@@ -24,6 +24,7 @@ namespace Torre_di_Hanoi
         private readonly Random rnd = new();
         private static readonly List<Rectangle> Pieces = new();
         private readonly Dictionary<Panel, Stack<Panel>> Stacks = new();
+        //private readonly List<Stack<Panel>> Stacks = new();
         //Handlers
         private readonly MouseEventHandler MouseDownHandler;
         private readonly MouseEventHandler MouseMoveHandler;
@@ -180,15 +181,16 @@ namespace Torre_di_Hanoi
             {
                 //Create the size based on the base width and the rod height
                 Rectangle @base = Pieces[i];
-                Panel panel = new();
+                Panel backPanel = new();
+                backPanel.Tag = i;
                 Rectangle position = new(@base.X, @base.Y - rodHeight, baseWidth, rodHeight);
-                panel.Location = position.Location;
-                panel.Size = position.Size;
-                panel.BackColor = Color.Transparent;
+                backPanel.Location = position.Location;
+                backPanel.Size = position.Size;
+                backPanel.BackColor = Color.Transparent;
                 //Initialize a new stack for each panel
-                Stacks[panel] = new();
-                Controls.Add(panel);
-                panel.SendToBack();
+                Stacks[backPanel] = new();
+                Controls.Add(backPanel);
+                backPanel.SendToBack();
             }
             //disksNumber disks
             const int diskWidthIncrement = 20;
@@ -272,8 +274,8 @@ namespace Torre_di_Hanoi
                     else
                         MoveDisk(otherTowers[1], stackList[smallestTowerIndex]);*/
 
-                    Stacks[otherTowers[0]].TryPeek(out Panel firstDisk);
-                    Stacks[otherTowers[1]].TryPeek(out Panel secondDisk);
+                    Stacks[otherTowers[0]].TryPeek(out Panel? firstDisk);
+                    Stacks[otherTowers[1]].TryPeek(out Panel? secondDisk);
 
                     if (firstDisk != null && secondDisk != null)
                     {

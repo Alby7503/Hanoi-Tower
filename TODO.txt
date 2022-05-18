@@ -1,0 +1,18 @@
+index Tag in tower
+
+dictionaty <int, stack>
+
+As -> B
+A -> C
+
+Bs -> C
+A -> B
+
+Cs -> A
+C -> B
+
+As -> B
+A -> C
+
+Bs -> C
+B -> A
