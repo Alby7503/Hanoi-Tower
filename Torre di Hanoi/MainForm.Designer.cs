@@ -31,6 +31,8 @@
             this.lblDebug = new System.Windows.Forms.Label();
             this.lbEvents = new System.Windows.Forms.ListBox();
             this.btnResolve = new System.Windows.Forms.Button();
+            this.cntDisks = new System.Windows.Forms.NumericUpDown();
+            ((System.ComponentModel.ISupportInitialize)(this.cntDisks)).BeginInit();
             this.SuspendLayout();
             // 
             // lblDebug
@@ -57,15 +59,39 @@
             this.btnResolve.Name = "btnResolve";
             this.btnResolve.Size = new System.Drawing.Size(75, 23);
             this.btnResolve.TabIndex = 3;
-            this.btnResolve.Text = "button1";
+            this.btnResolve.Text = "Resolve";
             this.btnResolve.UseVisualStyleBackColor = true;
             this.btnResolve.Click += new System.EventHandler(this.Resolve);
+            // 
+            // cntDisks
+            // 
+            this.cntDisks.Location = new System.Drawing.Point(1235, 12);
+            this.cntDisks.Maximum = new decimal(new int[] {
+            10,
+            0,
+            0,
+            0});
+            this.cntDisks.Minimum = new decimal(new int[] {
+            2,
+            0,
+            0,
+            0});
+            this.cntDisks.Name = "cntDisks";
+            this.cntDisks.Size = new System.Drawing.Size(37, 23);
+            this.cntDisks.TabIndex = 4;
+            this.cntDisks.Value = new decimal(new int[] {
+            10,
+            0,
+            0,
+            0});
+            this.cntDisks.ValueChanged += new System.EventHandler(this.DisksNumber_Changed);
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1284, 561);
+            this.Controls.Add(this.cntDisks);
             this.Controls.Add(this.btnResolve);
             this.Controls.Add(this.lbEvents);
             this.Controls.Add(this.lblDebug);
@@ -76,6 +102,7 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Torre di Hanoi";
             this.TopMost = true;
+            ((System.ComponentModel.ISupportInitialize)(this.cntDisks)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -84,5 +111,6 @@
         private Label lblDebug;
         private ListBox lbEvents;
         private Button btnResolve;
+        private NumericUpDown cntDisks;
     }
 }
