@@ -32,6 +32,7 @@
             this.lbEvents = new System.Windows.Forms.ListBox();
             this.btnResolve = new System.Windows.Forms.Button();
             this.cntDisks = new System.Windows.Forms.NumericUpDown();
+            this.lblDisksNumber = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.cntDisks)).BeginInit();
             this.SuspendLayout();
             // 
@@ -86,11 +87,21 @@
             0});
             this.cntDisks.ValueChanged += new System.EventHandler(this.DisksNumber_Changed);
             // 
+            // lblDisksNumber
+            // 
+            this.lblDisksNumber.AutoSize = true;
+            this.lblDisksNumber.Location = new System.Drawing.Point(1150, 14);
+            this.lblDisksNumber.Name = "lblDisksNumber";
+            this.lblDisksNumber.Size = new System.Drawing.Size(79, 15);
+            this.lblDisksNumber.TabIndex = 5;
+            this.lblDisksNumber.Text = "Disks number";
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1284, 561);
+            this.Controls.Add(this.lblDisksNumber);
             this.Controls.Add(this.cntDisks);
             this.Controls.Add(this.btnResolve);
             this.Controls.Add(this.lbEvents);
@@ -112,5 +123,6 @@
         private ListBox lbEvents;
         private Button btnResolve;
         private NumericUpDown cntDisks;
+        private Label lblDisksNumber;
     }
 }
